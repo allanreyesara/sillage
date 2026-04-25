@@ -1,0 +1,6 @@
+@Sillage.API_HostAddress = http://localhost:5190
+
+GET {{Sillage.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
