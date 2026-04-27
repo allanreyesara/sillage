@@ -89,8 +89,8 @@ public static class FragranceEndpoints
                 return Results.Problem("Error fetching data from Fragella API");
             }
 
-            var content = await response.Content.ReadAsStringAsync();
-            return Results.Ok(content);
+            var fragrances = await response.Content.ReadFromJsonAsync<List<FragellaFragranceDto>>();
+            return Results.Ok(fragrances);
         }).RequireAuthorization();
     }
 }
