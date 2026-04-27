@@ -92,5 +92,34 @@ public static class FragranceEndpoints
             var fragrances = await response.Content.ReadFromJsonAsync<List<FragellaFragranceDto>>();
             return Results.Ok(fragrances);
         }).RequireAuthorization();
-    }
+
+        app.MapPost("/fragrances/fragella", async (AppDbContext db, ClaimsPrincipal user, AddFragellaFragranceDto dto) =>
+        {
+            var userId = Guid.Parse(user.FindFirst("sub")?.Value!);
+            var fragrance = new Models.Fragrance
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                Name = dto.Name,
+                House = dto.House,
+                Description = dto.Description,
+                ImageUrl = dto.ImageUrl,
+                GeneralNotes = dto.GeneralNotes,
+                MainAccords = dto.MainAccords,
+                MainAccordsPercentage = dto.MainAccordsPercentage,
+                SeasonRanking = dto.SeasonRanking,
+                OccasionRanking = dto.OccasionRanking,
+                Notes = dto.Notes,
+                Gender = dto.Gender,
+                Concentration = dto.Concentration,
+                DateAdded = DateTime.UtcNow,
+                IsManual = false
+            };
+
+            db.Fragrances.Add(fragrance);
+            await db.SaveChangesAsync();
+
+            return Results.Created($"/fragrances/{fragrance.Id}", fragrance);
+        }).RequireAuthorization();
+        
 }
