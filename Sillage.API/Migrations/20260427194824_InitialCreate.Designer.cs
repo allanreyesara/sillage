@@ -11,7 +11,7 @@ using Sillage.API.Data;
 
 namespace Sillage.API.Migrations
 {
-    [DbContext(typeof(AppDBContext))]
+    [DbContext(typeof(AppDbContext))]
     [Migration("20260427194824_InitialCreate")]
     partial class InitialCreate
     {

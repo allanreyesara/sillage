@@ -4,6 +4,8 @@ using Sillage.API.Data;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
+using Sillage.API.Endpoints;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -33,7 +35,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 //DB
-builder.Services.AddDbContext<AppDBContext>(options =>
+builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
@@ -49,7 +51,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGet("/me", () => "Autenticado correctamente")
-    .RequireAuthorization();
+//Endpoints
+app.MapFragranceEndpoints();
+
     
 app.Run();
