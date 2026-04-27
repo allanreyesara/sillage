@@ -34,11 +34,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+// HTTPFactory
+builder.Services.AddHttpClient("Fragella", client =>
+{
+    client.BaseAddress = new Uri("https://api.fragella.com");
+    client.DefaultRequestHeaders.Add("x-api-key", builder.Configuration["Fragella:ApiKey"]);
+});
+
 //DB
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -78,5 +78,19 @@ public static class FragranceEndpoints
             await db.SaveChangesAsync();
             return Results.NoContent();
         }).RequireAuthorization();
+
+        app.MapGet("fragrances/search", async (IHttpClientFactory httpClientFactory, ClaimsPrincipal user, string query) =>
+        {
+            var client = httpClientFactory.CreateClient("Fragella");
+            var response = await client.GetAsync($"/api/v1/fragrances?search={Uri.EscapeDataString(query)}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return Results.Problem("Error fetching data from Fragella API");
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            return Results.Ok(content);
+        }).RequireAuthorization();
     }
 }
