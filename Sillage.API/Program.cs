@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Sillage.API.Data;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -11,6 +13,7 @@ builder.Services.AddSwaggerGen();
 // Auth
 var jwtSecret = builder.Configuration["Supabase:JwtSecret"]!;
 var supabaseUrl = builder.Configuration["Supabase:Url"]!;
+
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -28,6 +31,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+
+//DB
+builder.Services.AddDbContext<AppDBContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
