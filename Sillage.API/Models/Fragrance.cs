@@ -1,6 +1,6 @@
 namespace Sillage.API.Models
 {
-    public enum Genre
+    public enum Gender
     {
         Unisex,
         Masculine,
@@ -23,7 +23,7 @@ namespace Sillage.API.Models
         public string? House { get; set; }
         public string? ImageUrl { get; set; }
         public string? Description { get; set; }
-        public Genre Genre { get; set; } = Genre.Unisex;
+        public Gender Gender { get; set; } = Gender.Unisex;
         public Concentration Concentration { get; set; } = Concentration.EauDeParfum;
         public bool IsManual { get; set; } = false;
 
