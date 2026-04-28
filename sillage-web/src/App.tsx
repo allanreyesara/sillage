@@ -1,8 +1,14 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Auth from './pages/Auth'
+
 function App() {
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
-      <h1>Sillage</h1>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Auth />} />
+        <Route path="/auth" element={<Auth />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 

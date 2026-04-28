@@ -7,7 +7,6 @@ using Sillage.API.DTOs;
 
 namespace Sillage.API.Endpoints;
 
-
 public static class FragranceEndpoints
 {
     public static void MapFragranceEndpoints(this WebApplication app)
