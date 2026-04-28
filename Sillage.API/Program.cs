@@ -15,12 +15,24 @@ builder.Services.AddSwaggerGen();
 // Auth
 var jwtSecret = builder.Configuration["Supabase:JwtSecret"]!;
 var supabaseUrl = builder.Configuration["Supabase:Url"]!;
+Console.WriteLine($"supabaseUrl al inicio: '{supabaseUrl}'");
 
+
+// CORS Policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy( "AllowFrontend" ,policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.MetadataAddress = $"{supabaseUrl}/auth/v1/.well-known/openid-configuration";
+
         options.RequireHttpsMetadata = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -28,9 +40,25 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = $"{supabaseUrl}/auth/v1",
             ValidateIssuer = true,
             ValidateAudience = false,
-            ValidateLifetime = true
+            ValidateLifetime = true,
+            IssuerSigningKeyResolver = (token, securityToken, kid, parameters) =>
+            {
+                var client = new HttpClient();
+                var json = client.GetStringAsync($"{supabaseUrl}/auth/v1/.well-known/jwks.json").Result;
+                var keys = new Microsoft.IdentityModel.Tokens.JsonWebKeySet(json);
+                return keys.GetSigningKeys();
+            }
         };
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine($"Auth failed: {context.Exception.Message}");
+                Console.WriteLine($"URL dentro del lambda: '{supabaseUrl}'");
 
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();
@@ -48,6 +76,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 var app = builder.Build();
 
+//Force JWKS download on startup
+
 
 
 // Configure the HTTP request pipeline.
@@ -58,6 +88,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 
