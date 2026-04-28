@@ -14,14 +14,16 @@ public static class FragranceEndpoints
     {
         app.MapGet("/fragrances", async (AppDbContext db, ClaimsPrincipal user) =>
         {
-            var userId = Guid.Parse(user.FindFirst("sub")?.Value!);
+            var claims = user.Claims.Select(c => $"{c.Type}: {c.Value}");
+            Console.WriteLine(string.Join("\n", claims));
+            var userId = Guid.Parse(user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!);
             var fragrances = await db.Fragrances.Where(f => f.UserId == userId).ToListAsync();
             return Results.Ok(fragrances);
         }).RequireAuthorization();
 
         app.MapPost("/fragrances", async (AppDbContext db, ClaimsPrincipal user, CreateFragranceDto dto) =>
         {
-            var userId = Guid.Parse(user.FindFirst("sub")?.Value!);
+            var userId = Guid.Parse(user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!);
             var fragrance = new Models.Fragrance
             {
                 Id = Guid.NewGuid(),
@@ -40,7 +42,7 @@ public static class FragranceEndpoints
 
         app.MapGet("/fragrances/{id}", async (AppDbContext db, ClaimsPrincipal user, Guid id) =>
         {
-            var userId = Guid.Parse(user.FindFirst("sub")?.Value!);
+            var userId = Guid.Parse(user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!);
             var fragrance = await db.Fragrances.FirstOrDefaultAsync(f => f.Id == id && f.UserId == userId);
 
             if (fragrance == null)
@@ -51,7 +53,7 @@ public static class FragranceEndpoints
 
         app.MapPut("/fragrances/{id}", async (AppDbContext db, ClaimsPrincipal user, Guid id, CreateFragranceDto dto) =>
         {
-            var userId = Guid.Parse(user.FindFirst("sub")?.Value!);
+            var userId = Guid.Parse(user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!);
             var fragrance = await db.Fragrances.FirstOrDefaultAsync(f => f.Id == id && f.UserId == userId);
 
             if (fragrance == null)
@@ -67,7 +69,7 @@ public static class FragranceEndpoints
 
         app.MapDelete("/fragrances/{id}", async (AppDbContext db, ClaimsPrincipal user, Guid id) =>
         {
-            var userId = Guid.Parse(user.FindFirst("sub")?.Value!);
+            var userId = Guid.Parse(user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!);
             var fragrance = await db.Fragrances.FirstOrDefaultAsync(f => f.Id == id && f.UserId == userId);
 
             if (fragrance == null)
@@ -95,7 +97,7 @@ public static class FragranceEndpoints
 
         app.MapPost("/fragrances/fragella", async (AppDbContext db, ClaimsPrincipal user, AddFragellaFragranceDto dto) =>
         {
-            var userId = Guid.Parse(user.FindFirst("sub")?.Value!);
+            var userId = Guid.Parse(user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!);
             var fragrance = new Models.Fragrance
             {
                 Id = Guid.NewGuid(),
@@ -121,5 +123,5 @@ public static class FragranceEndpoints
 
             return Results.Created($"/fragrances/{fragrance.Id}", fragrance);
         }).RequireAuthorization();
-        
+    }
 }
