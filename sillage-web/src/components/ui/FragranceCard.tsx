@@ -1,12 +1,18 @@
 import type { Fragrance } from "../../types/fragrance"
+import { use, useEffect, useState } from "react"
 
 interface Props {
     fragrance: Fragrance
+    onSelect: (fragrance: Fragrance) => void
+    isSelected: boolean
 }
 
-export default function FragranceCard({ fragrance }: Props) {
+export default function FragranceCard({ fragrance, onSelect, isSelected }: Props) {
+
+    const [isExpanded, setIsExpanded] = useState(false)
+
     return (
-        <div className="relative group rounded-2xl overflow-hidden bg-white/5 border border-white/10 backdrop-blur-sm hover:border-amber-500/30 transition-all duration-300 cursor-pointer">
+        <div onClick={() => onSelect(fragrance)} className="relative group rounded-2xl overflow-hidden bg-white/5 border border-white/10 backdrop-blur-sm hover:border-amber-500/30 transition-all duration-300 cursor-pointer">
             <div className="aspect-square p-6 flex items-center justify-center">
                 <img
                     src={fragrance.imageUrl}
@@ -20,5 +26,7 @@ export default function FragranceCard({ fragrance }: Props) {
                 <h3 className="text-white font-semibold text-sm leading-tight">{fragrance.name}</h3>
             </div>
         </div>
+
+        
     )
 }
