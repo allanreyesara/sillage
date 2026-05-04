@@ -32,8 +32,11 @@ export default function Layout({ children }: Props) {
 
             {/* Sidebar */}
             <aside className="w-64 hidden lg:flex flex-col p-6 border-r border-white/5 fixed h-full z-10">
-                <h1 className="text-2xl font-serif mb-10">Sillage</h1>
-                <nav className="flex flex-col gap-2">
+
+                <a href="/">
+                    <img src="/logo.png" alt="Sillage Logo" className="h-14 w-auto cursor-pointer" />
+                </a>
+                <nav className="flex flex-col gap-2 mt-4">
                     {navItems.map((item) => (
                         <span
                             key={item.path}

@@ -3,12 +3,13 @@ import Auth from './pages/Auth'
 import Dashboard from './pages/Dashboard'
 import Discover from './pages/Discover'
 import ProtectedRoute from './components/ProtectedRoute'
+import Landing from './pages/Landing'
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Auth />} />
+        <Route path="/" element={<Landing />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/dashboard" element={<ProtectedRoute>
           <Dashboard />
