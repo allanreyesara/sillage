@@ -1,5 +1,5 @@
 import type { Fragrance } from "../../types/fragrance"
-import { use, useEffect, useState } from "react"
+import { useState } from "react"
 
 interface Props {
     fragrance: Fragrance

@@ -92,7 +92,7 @@ export default function Landing() {
     {
       num: '01 — Discover',
       title: 'Search any fragrance. Add it in one tap.',
-      desc: 'Powered by Fragella — search across thousands of fragrances and add them to your collection instantly. Accords, notes, seasons and occasions pulled automatically.',
+      desc: 'Powered by Fragella - search across thousands of fragrances and add them to your collection instantly. Accords, notes, seasons and occasions pulled automatically.',
     },
     {
       num: '02 — Understand',
@@ -101,7 +101,7 @@ export default function Landing() {
     },
     {
       num: '03 — Recommend',
-      title: 'The right bottle for the day — from what you own.',
+      title: 'The right bottle for the day - from what you own.',
       desc: 'Tell Sillage the occasion and the season. It surfaces the best match from your personal collection. No new purchases, no decision fatigue.',
     },
   ]
@@ -126,7 +126,7 @@ export default function Landing() {
     <div className="min-h-screen overflow-x-hidden" style={{ background: '#0a0a0f', color: '#ffffff', fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}>
       <Wallpaper />
 
-      {/* ── Nav ── */}
+      {/* - Nav - */}
       <header className="relative z-10">
         <nav className="flex items-center justify-between max-w-6xl mx-auto px-8 py-6">
           <img
@@ -181,7 +181,7 @@ export default function Landing() {
             </h1>
             <p className="text-lg leading-relaxed mb-10 max-w-lg" style={{ color: '#9ca3af' }}>
               Sillage catalogs your collection, breaks down every accord and note, and recommends
-              the right bottle for the day — based on season, occasion, and what you already own.
+              the right bottle for the day - based on season, occasion, and what you already own.
             </p>
             <div className="flex flex-wrap gap-3 items-center">
               {isAuthed ? (
@@ -261,7 +261,7 @@ export default function Landing() {
               Three quiet steps. No more guessing what to wear.
             </h2>
             <p className="text-lg leading-relaxed max-w-xl" style={{ color: '#9ca3af' }}>
-              Sillage doesn't replace the ritual of choosing a fragrance — it just gives you a clearer view of the wardrobe you already own.
+              Sillage doesn't replace the ritual of choosing a fragrance - it just gives you a clearer view of the wardrobe you already own.
             </p>
           </div>
           <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))' }}>
@@ -286,7 +286,7 @@ export default function Landing() {
           <div className="mb-14">
             <p className="text-xs uppercase tracking-widest mb-4" style={{ color: 'rgba(245,158,11,0.7)', letterSpacing: '0.22em' }}>A glimpse of your collection</p>
             <h2 className="font-normal mb-4" style={{ fontFamily: "'Tenor Sans', serif", fontSize: 'clamp(34px, 4.5vw, 56px)', letterSpacing: '-0.005em', lineHeight: 1.05 }}>
-              Smoky, woody, spiced — at a glance.
+              Smoky, woody, spiced - at a glance.
             </h2>
             <p className="text-lg leading-relaxed" style={{ color: '#9ca3af' }}>
               From real collections. Hover any card to see what it's made of.
@@ -339,7 +339,7 @@ export default function Landing() {
                 An accord breakdown for every bottle.
               </h2>
               <p className="text-lg leading-relaxed mb-6" style={{ color: '#9ca3af', maxWidth: 480 }}>
-                We break each fragrance into the accords that actually drive how it wears — by weight, not marketing copy.
+                We break each fragrance into the accords that actually drive how it wears - by weight, not marketing copy.
                 See why <em>Le Male Le Parfum</em> is a night-out signature at a glance.
               </p>
               <p className="text-sm tracking-wide" style={{ color: '#6b7280', letterSpacing: '0.04em' }}>— Le Male Le Parfum · Jean Paul Gaultier</p>
@@ -352,7 +352,7 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* ── CTA strip ── */}
+        {/* - CTA strip - */}
         <div
           className="my-24 p-16 rounded-3xl text-center relative overflow-hidden"
           style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.10) 0%, rgba(244,63,94,0.10) 60%, rgba(124,58,237,0.10) 100%), rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.10)', backdropFilter: 'blur(8px)' }}
@@ -364,16 +364,29 @@ export default function Landing() {
           <p className="text-base mx-auto mb-7" style={{ color: '#9ca3af', maxWidth: 480 }}>
             Log in, search your first bottle, and your collection is live in under a minute. Free while in beta.
           </p>
-          <button
-            onClick={() => navigate('/auth')}
-            className="px-7 py-3.5 rounded-xl text-sm font-semibold text-white cursor-pointer transition-all hover:opacity-90 hover:-translate-y-px"
-            style={{ background: 'linear-gradient(to right, #f59e0b, #f43f5e)', border: 'none' }}
-          >
-            Create your account →
-          </button>
+          <div className="flex items-center justify-center">
+            {isAuthed ? (
+              <button
+              onClick={() => navigate('/collection')}
+              className="px-7 py-3.5 rounded-xl text-sm font-semibold text-white cursor-pointer transition-all hover:opacity-90 hover:-translate-y-px"
+              style={{ background: 'linear-gradient(to right, #f59e0b, #f43f5e)', border: 'none' }}
+              >
+              Manage Collection →
+              </button> ) : (
+              <button
+              onClick={() => navigate('/auth')}
+              className="px-7 py-3.5 rounded-xl text-sm font-semibold text-white cursor-pointer transition-all hover:opacity-90 hover:-translate-y-px"
+              style={{ background: 'linear-gradient(to right, #f59e0b, #f43f5e)', border: 'none' }}
+              >
+              Create your account →
+              </button>
+            )}
+            
+
+          </div>  
         </div>
 
-        {/* ── Footer ── */}
+        {/* - Footer - */}
         <footer
           className="flex flex-wrap justify-between items-center gap-4 py-12 text-sm"
           style={{ borderTop: '1px solid rgba(255,255,255,0.05)', color: '#4b5563' }}

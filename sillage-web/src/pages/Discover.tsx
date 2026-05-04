@@ -59,6 +59,20 @@ export default function Discover() {
 
             {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
 
+            {hasSearched && (
+                <div className="text-center mt-8 mb-8">
+                    <p className="text-sm mb-3" style={{ color: '#6b7280' }}>
+                    Can't find what you're looking for?
+                    </p>
+                    <button
+                    className="px-6 py-3 rounded-xl text-sm font-medium transition-all"
+                    style={{ background: 'rgba(245,158,11,0.10)', border: '1px solid rgba(245,158,11,0.20)', color: '#f59e0b' }}
+                    >
+                    Add and edit it with AI
+                    </button>
+                </div>
+                )}
+
             {searchResults.length > 0 && (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                     {searchResults.map((fragrance, index) => (

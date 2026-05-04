@@ -1,89 +1,138 @@
-import { useState, useEffect } from 'react'
-import { getFragrances } from '../lib/api'
-import FragranceCard from '../components/ui/FragranceCard'
-import type { Fragrance } from '../types/fragrance'
+import { useEffect, useState } from 'react'
 import Layout from '../components/layout/layout'
+import { useWeather, weatherIcon } from '../hooks/useWeather'
+import { getFragrances } from '../lib/api'
+import type { Fragrance } from '../types/fragrance'
 
 export default function Dashboard() {
-    const [fragrances, setFragrances] = useState<Fragrance[]>([])
-    const [selectedFragrance, setSelectedFragrance] = useState<Fragrance | null>(null)
+  const occasions = ['Night Out', 'Casual', 'Professional', 'Date']
+  const { weather, status } = useWeather()
+  const [occasion, setOccasion] = useState<string | null>(null)
+  const [fragrances, setFragrances] = useState<Fragrance[]>([])
 
-    const handleSelectFragrance = (fragrance: Fragrance) => {
-        setSelectedFragrance(prev => prev?.id === fragrance.id ? null : fragrance)
+  useEffect(() => {
+    const loadFragrances = async () => {
+      const data = await getFragrances()
+      setFragrances(data)
     }
+    loadFragrances()
+  }, [])
 
-    useEffect(() => {
-        const loadFragrances = async () => {
-            const data = await getFragrances()
-            setFragrances(data)
-        }
-        loadFragrances()
-    }, [])
+  const allAccords = fragrances.flatMap(f => JSON.parse(f.mainAccords || '[]'))
+  const accordCounts = allAccords.reduce((acc: Record<string, number>, accord: string) => {
+    acc[accord] = (acc[accord] || 0) + 1
+    return acc
+  }, {})
+  const topAccord = Object.entries(accordCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—'
 
-    return (
-        <Layout>
-            <h2 className="text-2xl font-semibold mb-6">My Collection</h2>
+  const allSeasons = fragrances.flatMap(f => JSON.parse(f.seasonRanking || '[]'))
+  const seasonCounts = allSeasons.reduce((acc: Record<string, number>,  { name, score }: { name: string, score: number }) => {
+    acc[name] = (acc[name] || 0) + score
+    return acc
+  }, {})
+  const topSeason = Object.entries(seasonCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—'
 
-            {Array.from({ length: Math.ceil(fragrances.length / 4) }, (_, rowIndex) => {
-                const rowFragrances = fragrances.slice(rowIndex * 4, rowIndex * 4 + 4)
-                const selectedInThisRow = selectedFragrance && rowFragrances.some(f => f.id === selectedFragrance.id)
+  const allOccasions = fragrances.flatMap(f => JSON.parse(f.occasionRanking || '[]'))
+  const occasionCounts = allOccasions.reduce((acc: Record<string, number>,  { name, score }: { name: string, score: number }) => {
+    acc[name] = (acc[name] || 0) + score
+    return acc
+  }, {})
+  const topOccasion = Object.entries(occasionCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—'
 
-                return (
-                    <div key={rowIndex}>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                            {rowFragrances.map((fragrance) => (
-                                <FragranceCard
-                                    key={fragrance.id}
-                                    fragrance={fragrance}
-                                    onSelect={handleSelectFragrance}
-                                    isSelected={selectedFragrance?.id === fragrance.id}
-                                />
-                            ))}
-                        </div>
+  const weatherWidget = {
+    idle: null,
+    requesting: <p className="text-sm text-white/40">Requesting location...</p>,
+    loading: <p className="text-sm text-white/40">Loading weather...</p>,
+    denied: <p className="text-sm text-white/40">Location denied</p>,
+    error: <p className="text-sm text-white/40">Could not load weather data</p>,
+    success: (
+      <div
+        className="rounded-3xl p-8 mb-8 backdrop-blur-sm grid grid-cols-2 gap-8"
+        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.10)' }}
+      >
+        {/* Weather */}
+        <div>
+          <p className="text-xs uppercase tracking-widest mb-2" style={{ color: 'rgba(245,158,11,0.7)', letterSpacing: '0.22em' }}>
+            {weather?.city}
+          </p>
+          <p className="font-normal mb-1" style={{ fontFamily: "'Tenor Sans', serif", fontSize: 'clamp(48px, 6vw, 72px)', lineHeight: 1 }}>
+            {weather?.temperature}°C
+          </p>
+          <div className="flex items-center gap-4 mt-2">
+            <span style={{ fontSize: 52, lineHeight: 1 }}>
+              {weather && weatherIcon(weather.weatherCode, weather.isDay)}
+            </span>
+            <span className="text-sm uppercase tracking-widest" style={{ color: '#9ca3af', letterSpacing: '0.18em' }}>
+              {weather?.condition}
+            </span>
+          </div>
+        </div>
 
-                        {selectedInThisRow && (
-                            <div className="mb-4 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                                    <div>
-                                        <h4 className="text-amber-500/70 uppercase tracking-widest text-xs mb-3">Main Accords</h4>
-                                        <div className="flex flex-wrap gap-2">
-                                            {JSON.parse(selectedFragrance.mainAccords || '[]').map((accord: string) => (
-                                                <span key={accord} className="px-3 py-1 rounded-full bg-white/10 text-white text-xs">{accord}</span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <h4 className="text-amber-500/70 uppercase tracking-widest text-xs mb-3">Best Seasons</h4>
-                                        <div className="flex flex-col gap-2">
-                                            {JSON.parse(selectedFragrance.seasonRanking || '[]').map((s: { name: string, score: number }) => (
-                                                <div key={s.name} className="flex items-center gap-3">
-                                                    <span className="text-white/70 text-sm capitalize w-16">{s.name}</span>
-                                                    <div className="flex-1 bg-white/10 rounded-full h-1.5">
-                                                        <div className="bg-amber-500 h-1.5 rounded-full" style={{ width: `${Math.min(s.score / 2 * 100, 100)}%` }} />
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <h4 className="text-amber-500/70 uppercase tracking-widest text-xs mb-3">Best Occasions</h4>
-                                        <div className="flex flex-col gap-2">
-                                            {JSON.parse(selectedFragrance.occasionRanking || '[]').map((o: { name: string, score: number }) => (
-                                                <div key={o.name} className="flex items-center gap-3">
-                                                    <span className="text-white/70 text-sm capitalize w-24">{o.name}</span>
-                                                    <div className="flex-1 bg-white/10 rounded-full h-1.5">
-                                                        <div className="bg-violet-500 h-1.5 rounded-full" style={{ width: `${Math.min(o.score / 2 * 100, 100)}%` }} />
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                )
-            })}
-        </Layout>
-    )
+        {/* Occasion */}
+        <div className="flex flex-col justify-center gap-4">
+          <p className="font-normal text-2xl" style={{ fontFamily: "'Tenor Sans', serif" }}>
+            What's the occasion?
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {occasions.map(o => (
+              <button
+                key={o}
+                onClick={() => setOccasion(prev => prev === o ? null : o)}
+                className="px-4 py-2 rounded-full text-xs uppercase tracking-widest transition-all"
+                style={{
+                  background: occasion === o ? 'rgba(245,158,11,0.20)' : 'rgba(255,255,255,0.06)',
+                  border: `1px solid ${occasion === o ? 'rgba(245,158,11,0.50)' : 'rgba(255,255,255,0.10)'}`,
+                  color: occasion === o ? '#f59e0b' : '#9ca3af',
+                }}
+              >
+                {o}
+              </button>
+            ))}
+          </div>
+          <button
+            disabled={!occasion}
+            className="px-6 py-3 rounded-full text-sm font-semibold uppercase tracking-widest transition-all"
+            style={{
+              background: occasion ? 'linear-gradient(to right, #f59e0b, #f43f5e)' : 'rgba(255,255,255,0.06)',
+              border: 'none',
+              color: occasion ? '#fff' : '#6b7280',
+              cursor: occasion ? 'pointer' : 'not-allowed',
+            }}
+          >
+            Get my recommendation
+          </button>
+        </div>
+      </div>
+    ),
+  }[status]
+
+  return (
+    <Layout>
+      <h2 className="text-2xl font-semibold mb-6">Dashboard</h2>
+      {weatherWidget}
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        {[
+          { label: 'Bottles', value: fragrances.length },
+          { label: 'Top Accord', value: topAccord },
+          { label: 'Favorite Season', value: topSeason },
+          { label: 'Favorite Occasion', value: topOccasion },
+        ].map(stat => (
+          <div
+            key={stat.label}
+            className="rounded-2xl p-5 backdrop-blur-sm"
+            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.10)' }}
+          >
+            <p className="text-xs uppercase tracking-widest mb-2" style={{ color: 'rgba(245,158,11,0.7)', letterSpacing: '0.18em', fontSize: 10 }}>
+              {stat.label}
+            </p>
+            <p className="text-xl font-normal capitalize" style={{ fontFamily: "'Tenor Sans', serif" }}>
+              {stat.value}
+            </p>
+          </div>
+        ))}
+      </div>
+    </Layout>
+  )
 }
