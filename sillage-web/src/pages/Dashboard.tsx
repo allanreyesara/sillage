@@ -18,21 +18,42 @@ export default function Dashboard() {
     loadFragrances()
   }, [])
 
-  const allAccords = fragrances.flatMap(f => JSON.parse(f.mainAccords || '[]'))
+  const allAccords = fragrances.flatMap(f => {
+    try {
+      const parsed = JSON.parse(f.mainAccords || '[]')
+      return Array.isArray(parsed) ? (parsed as string[]) : []
+    } catch {
+      return []
+    }
+  })
   const accordCounts = allAccords.reduce((acc: Record<string, number>, accord: string) => {
     acc[accord] = (acc[accord] || 0) + 1
     return acc
   }, {})
   const topAccord = Object.entries(accordCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—'
 
-  const allSeasons = fragrances.flatMap(f => JSON.parse(f.seasonRanking || '[]'))
+  const allSeasons = fragrances.flatMap(f => {
+    try {
+      const parsed = JSON.parse(f.seasonRanking || '[]')
+      return Array.isArray(parsed) ? (parsed as { name: string; score: number }[]) : []
+    } catch {
+      return []
+    }
+  })
   const seasonCounts = allSeasons.reduce((acc: Record<string, number>,  { name, score }: { name: string, score: number }) => {
     acc[name] = (acc[name] || 0) + score
     return acc
   }, {})
   const topSeason = Object.entries(seasonCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—'
 
-  const allOccasions = fragrances.flatMap(f => JSON.parse(f.occasionRanking || '[]'))
+  const allOccasions = fragrances.flatMap(f => {
+    try {
+      const parsed = JSON.parse(f.occasionRanking || '[]')
+      return Array.isArray(parsed) ? (parsed as { name: string; score: number }[]) : []
+    } catch {
+      return []
+    }
+  })
   const occasionCounts = allOccasions.reduce((acc: Record<string, number>,  { name, score }: { name: string, score: number }) => {
     acc[name] = (acc[name] || 0) + score
     return acc
