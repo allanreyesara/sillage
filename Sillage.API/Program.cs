@@ -15,7 +15,6 @@ builder.Services.AddSwaggerGen();
 // Auth
 var jwtSecret = builder.Configuration["Supabase:JwtSecret"]!;
 var supabaseUrl = builder.Configuration["Supabase:Url"]!;
-Console.WriteLine($"supabaseUrl al inicio: '{supabaseUrl}'");
 
 
 // CORS Policy
@@ -47,16 +46,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 var json = client.GetStringAsync($"{supabaseUrl}/auth/v1/.well-known/jwks.json").Result;
                 var keys = new Microsoft.IdentityModel.Tokens.JsonWebKeySet(json);
                 return keys.GetSigningKeys();
-            }
-        };
-        options.Events = new JwtBearerEvents
-        {
-            OnAuthenticationFailed = context =>
-            {
-                Console.WriteLine($"Auth failed: {context.Exception.Message}");
-                Console.WriteLine($"URL dentro del lambda: '{supabaseUrl}'");
-
-                return Task.CompletedTask;
             }
         };
     });

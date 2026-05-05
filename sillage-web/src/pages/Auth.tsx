@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
+import toast, { Toaster } from 'react-hot-toast'
 
 export default function Auth() {
     const navigate = useNavigate()
@@ -15,21 +16,39 @@ export default function Auth() {
         setLoading(true)
         setError('')
 
-        const { error: authError } = isLogIn ? await supabase.auth.signInWithPassword({ email, password }) :
-            await supabase.auth.signUp({ email, password })
-
-        if (authError) {
-            setError(authError.message)
-        }else {
-            navigate('/dashboard')
+        if (isLogIn) {
+            const {error: authError} = await supabase.auth.signInWithPassword({ email, password })
+            if (authError) {
+                setError(authError.message)
+                setLoading(false)
+                toast.error(authError.message)
+                return
+            } else {
+                navigate('/dashboard')
+            }
+        } else {
+            const {data, error: authError} = await supabase.auth.signUp({ email, password })
+             if (authError) {
+                setError(authError.message)
+                setLoading(false)
+                toast.error(authError.message)
+                return
+            } else if (data.user?.identities?.length === 0) {
+                toast.error('There is already an account with this email. Please log in instead.')
+            } else {
+                toast.success('Account created! Please check your email to confirm your account.')
+                navigate('/auth')
+                setIsLogIn(true)
+            }
         }
+
 
         setLoading(false)
     }
 
     return (
     <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center overflow-hidden relative">
-        
+        <Toaster position='top-center'/>
         {/* Animated blobs */}
         <div className="absolute top-[-20%] left-[-10%] w-96 h-96 bg-amber-500/30 rounded-full blur-[120px] animate-blob" />
         <div className="absolute bottom-[-20%] right-[-10%] w-96 h-96 bg-violet-600/30 rounded-full blur-[120px] animate-blob" style={{ animationDelay: '1s' }} />
