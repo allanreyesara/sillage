@@ -34,7 +34,19 @@ export default function Auth() {
                 toast.error(authError.message)
                 return
             } else if (data.user?.identities?.length === 0) {
-                toast.error('There is already an account with this email. Please log in instead.')
+                toast.error((t) => (
+                    <span>
+                        Email already registered.{' '}
+                        <button onClick={() => {
+                            setIsLogIn(true)
+                            toast.dismiss(t.id)
+                        }}
+                        className='underline font-semibold'>
+                            Sign In instead
+                        </button>
+                    </span>
+                ), {duration: 5000})
+                
             } else {
                 toast.success('Account created! Please check your email to confirm your account.')
                 navigate('/auth')
@@ -48,7 +60,14 @@ export default function Auth() {
 
     return (
     <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center overflow-hidden relative">
-        <Toaster position='top-center'/>
+        <Toaster position='top-center'toastOptions={{
+      style: {
+        fontSize: '18px',
+        background: '#1a1a2e',
+        color: '#fff',
+        border: '1px solid rgba(255,255,255,0.1)'
+      }
+    }}/>
         {/* Animated blobs */}
         <div className="absolute top-[-20%] left-[-10%] w-96 h-96 bg-amber-500/30 rounded-full blur-[120px] animate-blob" />
         <div className="absolute bottom-[-20%] right-[-10%] w-96 h-96 bg-violet-600/30 rounded-full blur-[120px] animate-blob" style={{ animationDelay: '1s' }} />
