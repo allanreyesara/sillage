@@ -181,4 +181,4 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 
 **Allan Araya Reyes**  
 Full Stack Developer — Costa Rica  
-[GitHub](https://github.com/allanreyesara) · [LinkedIn](https://linkedin.com/in/allanaraya)
+[GitHub](https://github.com/allanreyesara) · [LinkedIn](https://linkedin.com/in/allanreyesara)
