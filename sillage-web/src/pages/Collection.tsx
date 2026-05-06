@@ -65,7 +65,7 @@ export default function Collection() {
                 return (
                     <div key={rowIndex}>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                            {rowItems.map((item, i) =>
+                            {rowItems.map((item, _i) =>
                                 item === null ? (
                                     <div
                                         key="add"
