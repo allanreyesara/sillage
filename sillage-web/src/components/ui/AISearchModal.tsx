@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { addAIFragranceToCollection, AISearchFragrances } from "../../lib/api";
 import type { FragranceEnrichmentResponse } from "../../types/FragranceEnrichmentResponse";
-import { toast } from "react-hot-toast/headless";
+import toast from "react-hot-toast";
 
 interface AISearchModalProps {
     onClose: () => void;

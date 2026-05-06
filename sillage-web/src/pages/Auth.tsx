@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
 import toast, { Toaster } from 'react-hot-toast'
+import BlobBackground from '../components/ui/BlobBackground'
 
 export default function Auth() {
     const navigate = useNavigate()
@@ -68,11 +69,7 @@ export default function Auth() {
         border: '1px solid rgba(255,255,255,0.1)'
       }
     }}/>
-        {/* Animated blobs */}
-        <div className="absolute top-[-20%] left-[-10%] w-96 h-96 bg-amber-500/30 rounded-full blur-[120px] animate-blob" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-96 h-96 bg-violet-600/30 rounded-full blur-[120px] animate-blob" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-[40%] right-[20%] w-64 h-64 bg-rose-500/20 rounded-full blur-[100px] animate-blob" style={{ animationDelay: '2s' }} />
-
+        <BlobBackground />
         <div className="relative z-10 w-full max-w-md p-8">
             <h1 className="text-5xl font-serif text-white mb-1 tracking-tight">Sillage</h1>
             <p className="text-gray-500 mb-8 text-sm tracking-widest uppercase">

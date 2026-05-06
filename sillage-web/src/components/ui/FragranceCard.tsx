@@ -1,5 +1,4 @@
 import type { Fragrance } from "../../types/fragrance"
-import { useState } from "react"
 
 interface Props {
     fragrance: Fragrance
@@ -7,10 +6,7 @@ interface Props {
     isSelected: boolean
 }
 
-export default function FragranceCard({ fragrance, onSelect, isSelected }: Props) {
-
-    const [isExpanded, setIsExpanded] = useState(false)
-
+export default function FragranceCard({ fragrance, onSelect }: Props) {
     return (
         <div onClick={() => onSelect(fragrance)} className="relative group rounded-2xl overflow-hidden bg-white/5 border border-white/10 backdrop-blur-sm hover:border-amber-500/30 transition-all duration-300 cursor-pointer">
             <div className="aspect-square p-6 flex items-center justify-center">

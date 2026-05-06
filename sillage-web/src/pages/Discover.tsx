@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { searchFragrances, addFragranceToCollection, deleteFragranceFromCollection } from '../lib/api'
+import { searchFragrances, addFragranceToCollection } from '../lib/api'
 import type { FragellaFragrance } from '../types/fragellaFragrance'
 import Layout from '../components/layout/layout'
-import toast, { Toaster } from 'react-hot-toast'
+import toast from 'react-hot-toast'
 import AISearchModal from '../components/ui/AISearchModal'
 
 
@@ -40,7 +40,6 @@ export default function Discover() {
 
     return (
         <Layout>
-            <Toaster position="top-center" />
             <h2 className="text-2xl font-semibold mb-2">Discover</h2>
             <p className="text-gray-500 mb-6 text-sm">Search for fragrances to add to your collection</p>
 

@@ -5,7 +5,7 @@ import FragranceCard from '../components/ui/FragranceCard'
 import type { Fragrance } from '../types/fragrance'
 import AISearchModal from '../components/ui/AISearchModal'
 import Layout from '../components/layout/layout'
-import toast, { Toaster } from 'react-hot-toast'
+import toast from 'react-hot-toast'
 
 export default function Collection() {
     const navigate = useNavigate()
@@ -56,7 +56,6 @@ export default function Collection() {
 
     return (
         <Layout>
-            <Toaster position="top-center" />
             <h2 className="text-2xl font-semibold mb-6">My Collection</h2>
 
             {rows.map((rowItems, rowIndex) => {

@@ -1,16 +1,12 @@
 import type { FragellaFragrance } from "../types/fragellaFragrance"
 import type { FragranceEnrichmentResponse } from "../types/FragranceEnrichmentResponse"
-import { supabase } from "./supabase"
+import { getAuthHeaders } from "./auth"
 
 export async function getFragrances(){
 
-    const { data: { session }} = await supabase.auth.getSession()
-    const token = session?.access_token
-
+    const headers = await getAuthHeaders()
     const response = await fetch(`${import.meta.env.VITE_API_URL}/fragrances`, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
+        headers: headers,
     })
 
     return response.json()
@@ -18,63 +14,44 @@ export async function getFragrances(){
 }
 
 export async function getRecommendation(occasion: string, temperature: number, weatherCondition: string, isDay: boolean) {
-    const { data: { session }} = await supabase.auth.getSession()
-    const token = session?.access_token
-
+    const headers = await getAuthHeaders()
     const response = await fetch(`${import.meta.env.VITE_API_URL}/fragrances/smart-recommend`, {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-        },
+        headers: headers,
         body: JSON.stringify({
             occasion,
             temperature,
             weatherCondition,
             isDay
-
         }),
     })
     return response.json()
 }
 
 export async function AISearchFragrances(Name: string, Brand: string) {
-    const { data: { session }} = await supabase.auth.getSession()
-    const token = session?.access_token
+    const headers = await getAuthHeaders()
 
     const response = await fetch(`${import.meta.env.VITE_API_URL}/fragrances/ai-search`, {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-        },
+        headers: headers,
         body: JSON.stringify({ Name, Brand }),
     })
     return response.json()
 }
 
-export async function searchFragrances(query: string){ {
-    const { data: { session }} = await supabase.auth.getSession()
-    const token = session?.access_token
-
+export async function searchFragrances(query: string) {
+    const headers = await getAuthHeaders()
     const response = await fetch(`${import.meta.env.VITE_API_URL}/fragrances/search?query=${encodeURIComponent(query)}`, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
+        headers,
     })
-    
     return response.json()
-}}
+}
 
 export async function addAIFragranceToCollection(fragrance: FragranceEnrichmentResponse) {
-    const { data: { session }} = await supabase.auth.getSession()    
-    const token = session?.access_token
-    
+    const headers = await getAuthHeaders()
+
     const response = await fetch(`${import.meta.env.VITE_API_URL}/fragrances/ai/add`, {
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-        },
+        headers: headers,
         method: 'POST',
         body: JSON.stringify(fragrance),
     })
@@ -83,20 +60,16 @@ export async function addAIFragranceToCollection(fragrance: FragranceEnrichmentR
 }
 
 export async function deleteFragranceFromCollection(fragranceId: string) {
-    const { data: { session }} = await supabase.auth.getSession()    
-    const token = session?.access_token
+    const headers = await getAuthHeaders()
 
     await fetch(`${import.meta.env.VITE_API_URL}/fragrances/${fragranceId}`, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
+        headers: headers,
         method: 'DELETE',
     })
 }
 
 export async function addFragranceToCollection(fragrance: FragellaFragrance) {
-    const { data: {session }} = await supabase.auth.getSession()    
-    const token = session?.access_token
+    const headers = await getAuthHeaders()
 
     const mapped = {
         name: fragrance.Name,
@@ -113,10 +86,7 @@ export async function addFragranceToCollection(fragrance: FragellaFragrance) {
     }
 
     const response = await fetch(`${import.meta.env.VITE_API_URL}/fragrances/fragella`, {
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-        },
+        headers: headers,
         method: 'POST',
         body: JSON.stringify( mapped ),
     })
