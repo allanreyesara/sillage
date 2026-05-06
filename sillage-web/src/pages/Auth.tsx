@@ -70,8 +70,10 @@ export default function Auth() {
       }
     }}/>
         <BlobBackground />
-        <div className="relative z-10 w-full max-w-md p-8">
-            <h1 className="text-5xl font-serif text-white mb-1 tracking-tight">Sillage</h1>
+        <div className="relative z-10 w-full max-w-md p-8" >
+            <a href="/">
+                <h1 className="text-5xl font-serif text-white mb-1 tracking-tight">Sillage</h1>
+            </a>
             <p className="text-gray-500 mb-8 text-sm tracking-widest uppercase">
                 {isLogIn ? 'Welcome back' : 'Create your account'}
             </p>
