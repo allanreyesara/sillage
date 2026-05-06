@@ -5,9 +5,10 @@ import { toast } from "react-hot-toast/headless";
 
 interface AISearchModalProps {
     onClose: () => void;
+    onAdded?: () => void;  
 }
 
-export default function AISearchModal({ onClose }: AISearchModalProps) {
+export default function AISearchModal({ onClose, onAdded }: AISearchModalProps) {
     const [response, setResponse] = useState<FragranceEnrichmentResponse | null>(null);
     const [loading, setLoading] = useState(false);
     const [name, setName] = useState("");
@@ -30,8 +31,8 @@ export default function AISearchModal({ onClose }: AISearchModalProps) {
     const handleAddToCollection = async (fragrance: FragranceEnrichmentResponse) => {
         try {
             await addAIFragranceToCollection(fragrance)
-
             toast.success(`${fragrance.name} added to your collection!`)
+            onAdded?.()
             onClose()
         } catch (err) {
             toast.error('Failed to add fragrance. Please try again.')
@@ -84,15 +85,25 @@ export default function AISearchModal({ onClose }: AISearchModalProps) {
                             { label: 'Brand', key: 'brand' },
                             { label: 'Gender', key: 'gender' },
                             { label: 'Oil Type', key: 'oilType' },
+                            { label: 'Description', key: 'description' },
                         ].map(({ label, key }) => (
                             <div key={key}>
                                 <p className="text-xs text-gray-500 mb-1">{label}</p>
-                                <input
-                                    type="text"
-                                    value={response[key as keyof FragranceEnrichmentResponse] as string}
-                                    onChange={(e) => setResponse({ ...response, [key]: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 outline-none focus:border-amber-500/50 transition-all"
-                                />
+                                {key === 'description' ? (
+                                    <textarea
+                                        value={response[key as keyof FragranceEnrichmentResponse] as string}
+                                        onChange={(e) => setResponse({ ...response, [key]: e.target.value })}
+                                        rows={3}
+                                        className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 outline-none focus:border-amber-500/50 transition-all resize-none"
+                                    />
+                                ) : (
+                                    <input
+                                        type="text"
+                                        value={response[key as keyof FragranceEnrichmentResponse] as string}
+                                        onChange={(e) => setResponse({ ...response, [key]: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 outline-none focus:border-amber-500/50 transition-all"
+                                    />
+                                )}
                             </div>
                         ))}
 

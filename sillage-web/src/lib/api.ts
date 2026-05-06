@@ -61,6 +61,18 @@ export async function addAIFragranceToCollection(fragrance: FragranceEnrichmentR
     return response.json()
 }
 
+export async function deleteFragranceFromCollection(fragranceId: string) {
+    const { data: { session }} = await supabase.auth.getSession()    
+    const token = session?.access_token
+
+    await fetch(`${import.meta.env.VITE_API_URL}/fragrances/${fragranceId}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        method: 'DELETE',
+    })
+}
+
 export async function addFragranceToCollection(fragrance: FragellaFragrance) {
     const { data: {session }} = await supabase.auth.getSession()    
     const token = session?.access_token

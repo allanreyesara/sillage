@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getFragrances } from '../lib/api'
+import { deleteFragranceFromCollection, getFragrances } from '../lib/api'
 import FragranceCard from '../components/ui/FragranceCard'
 import type { Fragrance } from '../types/fragrance'
+import AISearchModal from '../components/ui/AISearchModal'
 import Layout from '../components/layout/layout'
+import toast, { Toaster } from 'react-hot-toast'
 
 export default function Collection() {
     const navigate = useNavigate()
     const [loading, setLoading] = useState(true)
     const [fragrances, setFragrances] = useState<Fragrance[]>([])
     const [selectedFragrance, setSelectedFragrance] = useState<Fragrance | null>(null)
+    const [showAISearch, setShowAISearch] = useState(false)
+
 
     const handleSelectFragrance = (fragrance: Fragrance) => {
         setSelectedFragrance(prev => prev?.id === fragrance.id ? null : fragrance)
@@ -24,6 +28,17 @@ export default function Collection() {
         loadFragrances()
     }, [])
 
+    const handleDeleteFragrance = async (fragranceId: string) => {
+        try {
+            await deleteFragranceFromCollection(fragranceId)
+            setFragrances(prev => prev.filter(f => f.id !== fragranceId))
+            setSelectedFragrance(null)
+            toast.success('Fragrance removed from your collection!')
+        } catch (err) {
+            toast.error('Failed to remove fragrance. Please try again.')
+        }
+    }
+
     const items = [...fragrances, null]
     const rows = Array.from({ length: Math.ceil(items.length / 4) }, (_, i) =>
         items.slice(i * 4, i * 4 + 4)
@@ -37,10 +52,11 @@ export default function Collection() {
             </div>
           </Layout>
         )
-      }
+    }
 
     return (
         <Layout>
+            <Toaster position="top-center" />
             <h2 className="text-2xl font-semibold mb-6">My Collection</h2>
 
             {rows.map((rowItems, rowIndex) => {
@@ -52,7 +68,6 @@ export default function Collection() {
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                             {rowItems.map((item, i) =>
                                 item === null ? (
-                                    // - Add fragrance card -
                                     <div
                                         key="add"
                                         onClick={() => navigate('/discover')}
@@ -66,7 +81,7 @@ export default function Collection() {
                                                 +
                                             </div>
                                             <p className="text-sm text-white/40 text-center leading-tight">
-                                                Add a fragrance
+                                                Search fragrances to add to your collection
                                             </p>
                                         </div>
                                         <div className="p-4 border-t border-white/5">
@@ -122,11 +137,37 @@ export default function Collection() {
                                         </div>
                                     </div>
                                 </div>
+                                <div className="mt-4 flex justify-end">
+                                    <button
+                                        onClick={() => handleDeleteFragrance(selectedFragrance.id)}
+                                        className="px-4 py-2 rounded-xl text-sm text-red-400 border border-red-400/20 hover:bg-red-400/10 transition-all"
+                                    >
+                                        Remove from collection
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>
                 )
             })}
+            <div className="text-center mt-8">
+                <p className="text-sm mb-3" style={{ color: '#6b7280' }}>
+                    Can't find what you're looking for?
+                </p>
+                <button
+                    onClick={() => setShowAISearch(true)}
+                    className="px-6 py-3 rounded-xl text-sm font-medium transition-all"
+                    style={{ background: 'rgba(245,158,11,0.10)', border: '1px solid rgba(245,158,11,0.20)', color: '#f59e0b' }}
+                >
+                    Add and edit it with AI
+                </button>
+            </div>
+            {showAISearch && <AISearchModal onClose={() => setShowAISearch(false)} 
+                onAdded={async () => {
+                    const data = await getFragrances()
+                    setFragrances(data)
+                    toast.success('Fragrance added to your collection!')
+                }}/>}
         </Layout>
     )
 }
