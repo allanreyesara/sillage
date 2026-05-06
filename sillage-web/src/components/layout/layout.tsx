@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { Toaster } from 'react-hot-toast'
 import BlobBackground from '../ui/BlobBackground'
+import BottomNav from './BottomNav'
 
 interface Props {
     children: React.ReactNode
@@ -61,9 +62,10 @@ export default function Layout({ children }: Props) {
             </aside>
 
             {/* Content */}
-            <main className="flex-1 p-8 lg:ml-64">
+            <main className="flex-1 p-8 lg:ml-64 pb-24 lg:pb-8">
                 {children}
             </main>
+            <BottomNav />
         </div>
     )
 }

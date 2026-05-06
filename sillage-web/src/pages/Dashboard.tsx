@@ -80,7 +80,7 @@ export default function Dashboard() {
     error: <p className="text-sm text-white/40">Could not load weather data</p>,
     success: (
       <div
-        className="rounded-3xl p-8 mb-8 backdrop-blur-sm grid grid-cols-2 gap-8"
+        className="rounded-3xl p-8 mb-8 backdrop-blur-sm grid grid-cols-1 md:grid-cols-2 gap-8"
         style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.10)' }}
       >
         {/* Weather */}
