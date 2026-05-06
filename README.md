@@ -1,8 +1,10 @@
 # Sillage — Your Fragrance Wardrobe
 
 > A luxury fragrance collection PWA that tells you what to wear before you even open the drawer.
+>
+> Live Demo: https://www.sillage.beauty/
 
-![Sillage Dashboard](https://via.placeholder.com/1200x630/0a0a0f/f59e0b?text=Sillage)
+![Sillage Dashboard](https://www.sillage.beauty/)
 
 ---
 
