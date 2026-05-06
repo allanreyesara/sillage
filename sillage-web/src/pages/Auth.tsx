@@ -71,7 +71,7 @@ export default function Auth() {
     }}/>
         <BlobBackground />
         <div className="relative z-10 w-full max-w-md p-8" >
-            <a href="/">
+            <a href="/" cursosr-pointer >
                 <h1 className="text-5xl font-serif text-white mb-1 tracking-tight">Sillage</h1>
             </a>
             <p className="text-gray-500 mb-8 text-sm tracking-widest uppercase">
