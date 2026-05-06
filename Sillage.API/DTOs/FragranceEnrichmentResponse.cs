@@ -1,3 +1,5 @@
+using Sillage.API.Models;
+
 namespace Sillage.API.DTOs;
 
 public record FragranceEnrichmentResponse(
@@ -6,5 +8,6 @@ public record FragranceEnrichmentResponse(
     string Gender,
     string OilType,
     List<string> GeneralNotes,
+    string Description,
     List<string> MainAccords
 );

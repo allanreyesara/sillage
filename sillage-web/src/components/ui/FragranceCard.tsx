@@ -15,10 +15,10 @@ export default function FragranceCard({ fragrance, onSelect, isSelected }: Props
         <div onClick={() => onSelect(fragrance)} className="relative group rounded-2xl overflow-hidden bg-white/5 border border-white/10 backdrop-blur-sm hover:border-amber-500/30 transition-all duration-300 cursor-pointer">
             <div className="aspect-square p-6 flex items-center justify-center">
                 <img
-                    src={fragrance.imageUrl}
+                    src={fragrance.imageUrl ?? '/placeholder-bottle.svg'}
                     alt={fragrance.name}
                     className="w-full h-full object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => (e.currentTarget.src = '/placeholder-bottle.png')}
+                    onError={(e) => (e.currentTarget.src = fragrance.imageUrl ?? '/placeholder-bottle.svg')}
                 />
             </div>
             <div className="p-4 border-t border-white/5">

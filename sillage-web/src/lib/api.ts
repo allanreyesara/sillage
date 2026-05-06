@@ -1,4 +1,5 @@
 import type { FragellaFragrance } from "../types/fragellaFragrance"
+import type { FragranceEnrichmentResponse } from "../types/FragranceEnrichmentResponse"
 import { supabase } from "./supabase"
 
 export async function getFragrances(){
@@ -16,6 +17,21 @@ export async function getFragrances(){
     
 }
 
+export async function AISearchFragrances(Name: string, Brand: string) {
+    const { data: { session }} = await supabase.auth.getSession()
+    const token = session?.access_token
+
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/fragrances/ai-search`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ Name, Brand }),
+    })
+    return response.json()
+}
+
 export async function searchFragrances(query: string){ {
     const { data: { session }} = await supabase.auth.getSession()
     const token = session?.access_token
@@ -28,6 +44,22 @@ export async function searchFragrances(query: string){ {
     
     return response.json()
 }}
+
+export async function addAIFragranceToCollection(fragrance: FragranceEnrichmentResponse) {
+    const { data: { session }} = await supabase.auth.getSession()    
+    const token = session?.access_token
+    
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/fragrances/ai/add`, {
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
+        method: 'POST',
+        body: JSON.stringify(fragrance),
+    })
+
+    return response.json()
+}
 
 export async function addFragranceToCollection(fragrance: FragellaFragrance) {
     const { data: {session }} = await supabase.auth.getSession()    

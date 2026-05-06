@@ -3,6 +3,8 @@ import { searchFragrances, addFragranceToCollection } from '../lib/api'
 import type { FragellaFragrance } from '../types/fragellaFragrance'
 import Layout from '../components/layout/layout'
 import toast from 'react-hot-toast'
+import AISearchModal from '../components/ui/AISearchModal'
+
 
 export default function Discover() {
     const [searchQuery, setSearchQuery] = useState('')
@@ -10,6 +12,7 @@ export default function Discover() {
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState('')
     const [hasSearched, setHasSearched] = useState(false)
+    const [showAISearch, setShowAISearch] = useState(false)
 
     const handleSearch = async () => {
         setIsLoading(true)
@@ -65,6 +68,7 @@ export default function Discover() {
                     Can't find what you're looking for?
                     </p>
                     <button
+                    onClick={() => setShowAISearch(true)}
                     className="px-6 py-3 rounded-xl text-sm font-medium transition-all"
                     style={{ background: 'rgba(245,158,11,0.10)', border: '1px solid rgba(245,158,11,0.20)', color: '#f59e0b' }}
                     >
@@ -82,7 +86,7 @@ export default function Discover() {
                                     src={fragrance['Image URL']}
                                     alt={fragrance.Name}
                                     className="w-full h-full object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-300"
-                                    onError={(e) => (e.currentTarget.src = '/placeholder-bottle.png')}
+                                    onError={(e) => (e.currentTarget.src = '/placeholder-bottle.svg')}
                                 />
                             </div>
                             <div className="p-4 border-t border-white/5">
@@ -103,6 +107,7 @@ export default function Discover() {
             {hasSearched && searchResults.length === 0 && !isLoading && (
                 <p className="text-gray-600 text-center mt-12">No results found for "{searchQuery}"</p>
             )}
+            {showAISearch && <AISearchModal onClose={() => setShowAISearch(false)} />}
         </Layout>
     )
 }
