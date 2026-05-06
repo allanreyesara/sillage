@@ -93,7 +93,7 @@ export default function Auth() {
                     onChange={(e) => setPassword(e.target.value)}
                     className="bg-white/5 border border-white/10 text-white placeholder-gray-600 rounded-xl px-4 py-3 outline-none focus:border-amber-500/50 transition-all"
                 />
-                {loading && <p className="text-gray-400 text-sm">This is a beta version, it can take 30 seconds for the backend to wake up if the app was not used by any user in the last 15 minutes.</p>}
+                {loading && <p className="text-gray-400 text-sm">This is a beta version, it can take 30 seconds for the server to wake up if the app was not used by any user in the last 15 minutes.</p>}
                 {error && <p className="text-red-400 text-sm">{error}</p>}
 
                 <button
