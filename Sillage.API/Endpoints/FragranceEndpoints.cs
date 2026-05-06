@@ -141,8 +141,8 @@ public static class FragranceEndpoints
                 GeneralNotes = JsonSerializer.Serialize(dto.GeneralNotes),
                 MainAccords = JsonSerializer.Serialize(dto.MainAccords),
                 MainAccordsPercentage = "",
-                SeasonRanking = "",
-                OccasionRanking = "",
+                SeasonRanking = JsonSerializer.Serialize(dto.SeasonRanking),
+                OccasionRanking = JsonSerializer.Serialize(dto.OccasionRanking),
                 Notes = "",
                 ImageUrl = null,
                 DateAdded = DateTime.UtcNow,
@@ -164,12 +164,17 @@ public static class FragranceEndpoints
                 "{\n" +
                 "  \"Name\": \"string\",\n" +
                 "  \"Brand\": \"string\",\n" +
-                "\"Gender\": \"string (Unisex, Masculine, or Feminine)\",\n" +
-                "\"OilType\": \"string (EauDeParfum, EauDeToilette, EauDeCologne, or Parfum)\",\n" +
+                "  \"Gender\": \"string (Unisex, Masculine, or Feminine)\",\n" +
+                "  \"OilType\": \"string (EauDeParfum, EauDeToilette, EauDeCologne, or Parfum)\",\n" +
                 "  \"GeneralNotes\": [\"string\"],\n" +
-                "  \"MainAccords\": [\"string\"]\n" +
-                "  \"Description\": \"string\"\n" +
+                "  \"MainAccords\": [\"string\"],\n" +
+                "  \"Description\": \"string\",\n" +
+                "  \"SeasonRanking\": [{\"name\": \"string\", \"score\": number}],\n" +
+                "  \"OccasionRanking\": [{\"name\": \"string\", \"score\": number}]\n" +
                 "}\n" +
+                "For SeasonRanking use exactly these names: spring, summer, fall, winter. Score range is 0.0 to 2.0.\n" +
+                "For OccasionRanking use exactly these names: daily, night out, business, sport, leisure, evening. Score range is 0.0 to 2.0.\n" +
+                "Analyze the fragrance profile and assign scores based on its notes and accords.\n" +
                 "If you are not confident about any field, return an empty string or empty array.\n" +
                 "Do not invent information.";
             var aiResponse = await llmClient.GenerateAsync(prompt);

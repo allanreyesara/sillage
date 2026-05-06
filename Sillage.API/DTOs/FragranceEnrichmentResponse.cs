@@ -9,5 +9,7 @@ public record FragranceEnrichmentResponse(
     string OilType,
     List<string> GeneralNotes,
     string Description,
-    List<string> MainAccords
+    List<string> MainAccords,
+    List<SeasonRankingDto> SeasonRanking,
+    List<OccasionRankingDto> OccasionRanking
 );

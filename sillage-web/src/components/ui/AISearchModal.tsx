@@ -91,16 +91,22 @@ export default function AISearchModal({ onClose, onAdded }: AISearchModalProps) 
                                 <p className="text-xs text-gray-500 mb-1">{label}</p>
                                 {key === 'description' ? (
                                     <textarea
-                                        value={response[key as keyof FragranceEnrichmentResponse] as string}
-                                        onChange={(e) => setResponse({ ...response, [key]: e.target.value })}
+                                        value={response ? (response[key as keyof FragranceEnrichmentResponse] as string) : ''}
+                                        onChange={(e) => {
+                                            const k = key as keyof FragranceEnrichmentResponse;
+                                            setResponse(prev => prev ? ({ ...prev, [k]: e.target.value } as FragranceEnrichmentResponse) : prev)
+                                        }}
                                         rows={3}
                                         className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 outline-none focus:border-amber-500/50 transition-all resize-none"
                                     />
                                 ) : (
                                     <input
                                         type="text"
-                                        value={response[key as keyof FragranceEnrichmentResponse] as string}
-                                        onChange={(e) => setResponse({ ...response, [key]: e.target.value })}
+                                        value={response ? (response[key as keyof FragranceEnrichmentResponse] as string) : ''}
+                                        onChange={(e) => {
+                                            const k = key as keyof FragranceEnrichmentResponse;
+                                            setResponse(prev => prev ? ({ ...prev, [k]: e.target.value } as FragranceEnrichmentResponse) : prev)
+                                        }}
                                         className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 outline-none focus:border-amber-500/50 transition-all"
                                     />
                                 )}
