@@ -1,7 +1,8 @@
 using Sillage.API.Data;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
-using Sillage.API.Models;
+using System.Text.Json;
+using Sillage.API.Infraestructure.AI;
 
 using Sillage.API.DTOs;
 
@@ -122,5 +123,34 @@ public static class FragranceEndpoints
 
             return Results.Created($"/fragrances/{fragrance.Id}", fragrance);
         }).RequireAuthorization();
+
+        app.MapPost("/fragrances/ai-search", async (ILLMClient llmClient, ClaimsPrincipal user, FragranceAIDTO dto) =>
+        {
+            var prompt = 
+                $"Research the fragrance \"{dto.Name}\" by \"{dto.Brand}\" and return the following details in JSON format:\n" +
+                "{\n" +
+                "  \"Name\": \"string\",\n" +
+                "  \"Brand\": \"string\",\n" +
+                "  \"Gender\": \"string (Male, Female, or Unisex)\",\n" +
+                "  \"OilType\": \"string (EDT, EDP, Parfum, Cologne, etc.)\",\n" +
+                "  \"GeneralNotes\": [\"string\"],\n" +
+                "  \"MainAccords\": [\"string\"]\n" +
+                "}\n" +
+                "If you are not confident about any field, return an empty string or empty array.\n" +
+                "Do not invent information.";
+            var aiResponse = await llmClient.GenerateAsync(prompt);
+
+            try
+            {
+                var fragrances = JsonSerializer.Deserialize<FragranceEnrichmentResponse>(aiResponse);
+                return Results.Ok(fragrances);
+            }
+            catch (JsonException)
+            {
+                return Results.Problem("Failed to parse AI response");
+            }
+        }).RequireAuthorization();
     }
+
+
 }

@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 using Sillage.API.Endpoints;
+using Sillage.API.Infraestructure.AI;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,10 @@ builder.Services.AddSwaggerGen();
 // Auth
 var jwtSecret = builder.Configuration["Supabase:JwtSecret"]!;
 var supabaseUrl = builder.Configuration["Supabase:Url"]!;
+
+// AI
+builder.Services.AddHttpClient<ILLMClient, OpenAIClient>();
+
 
 
 // CORS Policy
