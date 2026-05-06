@@ -1,7 +1,7 @@
 using Sillage.API.Data;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
+using Sillage.API.Services;
 using Sillage.API.Infraestructure.AI;
 using Sillage.API.Models;
 
@@ -126,74 +126,25 @@ public static class FragranceEndpoints
             return Results.Created($"/fragrances/{fragrance.Id}", fragrance);
         }).RequireAuthorization();
 
-        app.MapPost("/fragrances/ai/add", async (AppDbContext db, ClaimsPrincipal user, FragranceEnrichmentResponse dto) =>
+        app.MapPost("/fragrances/ai/add", async (IAIFragranceService aiFragranceService, ClaimsPrincipal user, FragranceEnrichmentResponse dto) =>
         {
             var userId = Guid.Parse(user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!);
-            var fragrance = new Models.Fragrance
-            {
-                Id = Guid.NewGuid(),
-                UserId = userId,
-                Name = dto.Name,
-                House = dto.Brand,
-                Description = dto.Description,
-                Gender = Enum.Parse<Gender>(dto.Gender, ignoreCase: true),
-                Concentration = Enum.Parse<Concentration>(dto.OilType, ignoreCase: true),
-                GeneralNotes = JsonSerializer.Serialize(dto.GeneralNotes),
-                MainAccords = JsonSerializer.Serialize(dto.MainAccords),
-                MainAccordsPercentage = "",
-                SeasonRanking = JsonSerializer.Serialize(dto.SeasonRanking),
-                OccasionRanking = JsonSerializer.Serialize(dto.OccasionRanking),
-                Notes = "",
-                ImageUrl = null,
-                DateAdded = DateTime.UtcNow,
-                IsManual = true,
-            };
+            await aiFragranceService.AddAIFragranceAsync(userId, dto);
+            return Results.Ok();  
 
-            db.Fragrances.Add(fragrance);
-            await db.SaveChangesAsync();
-
-            return Results.Created($"/fragrances/{fragrance.Id}", fragrance);
         }).RequireAuthorization();
 
-        app.MapPost("/fragrances/ai-search", async (ILLMClient llmClient, ClaimsPrincipal user, FragranceAIDTO dto) =>
+        app.MapPost("/fragrances/ai-search", async (FragranceAIDTO dto, ClaimsPrincipal user, IAIFragranceService aiFragranceService) =>
         {
-            Console.WriteLine($"DTO received: {dto.Name} / {dto.Brand}");
-
-            var prompt = 
-                $"Research the fragrance \"{dto.Name}\" by \"{dto.Brand}\" and return the following details in JSON format:\n" +
-                "{\n" +
-                "  \"Name\": \"string\",\n" +
-                "  \"Brand\": \"string\",\n" +
-                "  \"Gender\": \"string (Unisex, Masculine, or Feminine)\",\n" +
-                "  \"OilType\": \"string (EauDeParfum, EauDeToilette, EauDeCologne, or Parfum)\",\n" +
-                "  \"GeneralNotes\": [\"string\"],\n" +
-                "  \"MainAccords\": [\"string\"],\n" +
-                "  \"Description\": \"string\",\n" +
-                "  \"SeasonRanking\": [{\"name\": \"string\", \"score\": number}],\n" +
-                "  \"OccasionRanking\": [{\"name\": \"string\", \"score\": number}]\n" +
-                "}\n" +
-                "For SeasonRanking use exactly these names: spring, summer, fall, winter. Score range is 0.0 to 2.0.\n" +
-                "For OccasionRanking use exactly these names: daily, night out, business, sport, leisure, evening. Score range is 0.0 to 2.0.\n" +
-                "Analyze the fragrance profile and assign scores based on its notes and accords.\n" +
-                "If you are not confident about any field, return an empty string or empty array.\n" +
-                "Do not invent information.";
-            var aiResponse = await llmClient.GenerateAsync(prompt);
-            Console.WriteLine("AI RAW RESPONSE: " + aiResponse);
-
-
-            try
-            {
-                var fragrances = JsonSerializer.Deserialize<FragranceEnrichmentResponse>(aiResponse);
-                return Results.Ok(fragrances);
-            }
-            catch (JsonException)
-            {
-                Console.WriteLine("AI RAW RESPONSE: " + aiResponse);
-
-                return Results.Problem("Failed to parse AI response");
-            }
+            var result = await aiFragranceService.EnrichAsync(dto);
+            return Results.Ok(result);
         }).RequireAuthorization();
-    }
 
-
+        app.MapPost("/fragrances/smart-recommend", async (IAIFragranceService aiFragranceService, SmartRecommendRequest dto, ClaimsPrincipal user) =>
+        {
+            var userId = Guid.Parse(user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!);
+            var result = await aiFragranceService.SmartRecommendAsync(dto, userId);
+            return Results.Ok(result);
+        }).RequireAuthorization();
+    }    
 }

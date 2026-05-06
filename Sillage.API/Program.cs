@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Sillage.API.Data;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Sillage.API.Services;
 
 using Sillage.API.Endpoints;
 using Sillage.API.Infraestructure.AI;
@@ -12,6 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IAIFragranceService, AIFragranceService>();
+
 
 // Auth
 var jwtSecret = builder.Configuration["Supabase:JwtSecret"]!;
