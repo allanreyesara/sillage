@@ -156,6 +156,27 @@ export default function Landing() {
               Sign in
             </button> )}
           </div>
+
+          {/* Mobile button */}
+          <div className="md:hidden">
+            {isAuthed ? (
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="px-3 py-1.5 rounded-full text-xs font-medium"
+                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)' }}
+              >
+                Dashboard
+              </button>
+            ) : (
+              <button
+                onClick={() => navigate('/auth')}
+                className="px-3 py-1.5 rounded-full text-xs font-medium"
+                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)' }}
+              >
+                Sign in
+              </button>
+            )}
+          </div>
         </nav>
       </header>
 
