@@ -17,6 +17,27 @@ export async function getFragrances(){
     
 }
 
+export async function getRecommendation(occasion: string, temperature: number, weatherCondition: string, isDay: boolean) {
+    const { data: { session }} = await supabase.auth.getSession()
+    const token = session?.access_token
+
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/fragrances/smart-recommend`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+            occasion,
+            temperature,
+            weatherCondition,
+            isDay
+
+        }),
+    })
+    return response.json()
+}
+
 export async function AISearchFragrances(Name: string, Brand: string) {
     const { data: { session }} = await supabase.auth.getSession()
     const token = session?.access_token

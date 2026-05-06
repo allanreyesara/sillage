@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react'
 import Layout from '../components/layout/layout'
 import { useWeather, weatherIcon } from '../hooks/useWeather'
-import { getFragrances } from '../lib/api'
+import { getFragrances, getRecommendation } from '../lib/api'
 import type { Fragrance } from '../types/fragrance'
+import type { RecommendationResponse } from '../types/RecommendationResponse'
 
 export default function Dashboard() {
   const occasions = ['Night Out', 'Casual', 'Professional', 'Date']
+  const [loadingRecommendation, setLoadingRecommendation] = useState(false)
   const { weather, status } = useWeather()
   const [occasion, setOccasion] = useState<string | null>(null)
   const [fragrances, setFragrances] = useState<Fragrance[]>([])
+  const [recommendation, setRecommendation] = useState<RecommendationResponse | null>(null)
+
 
   useEffect(() => {
     const loadFragrances = async () => {
@@ -17,6 +21,14 @@ export default function Dashboard() {
     }
     loadFragrances()
   }, [])
+
+  const handleRecommendation = async () => {
+    if (!occasion || !weather) return
+    setLoadingRecommendation(true)
+    const data = await getRecommendation(occasion, weather.temperature, weather.condition, weather.isDay)
+    setRecommendation(data) 
+    setLoadingRecommendation(false)
+  }
 
   const allAccords = fragrances.flatMap(f => {
     try {
@@ -111,6 +123,7 @@ export default function Dashboard() {
             ))}
           </div>
           <button
+            onClick={handleRecommendation}
             disabled={!occasion}
             className="px-6 py-3 rounded-full text-sm font-semibold uppercase tracking-widest transition-all"
             style={{
@@ -131,6 +144,55 @@ export default function Dashboard() {
     <Layout>
       <h2 className="text-2xl font-semibold mb-6">Dashboard</h2>
       {weatherWidget}
+      {loadingRecommendation && (
+          <div
+              className="rounded-3xl p-8 mb-8 backdrop-blur-sm animate-pulse"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.10)' }}
+          >
+              <div className="h-3 w-32 rounded-full mb-4" style={{ background: 'rgba(245,158,11,0.2)' }} />
+              <div className="h-8 w-64 rounded-full mb-4" style={{ background: 'rgba(255,255,255,0.08)' }} />
+              <div className="h-4 w-full rounded-full mb-2" style={{ background: 'rgba(255,255,255,0.05)' }} />
+              <div className="h-4 w-3/4 rounded-full mb-6" style={{ background: 'rgba(255,255,255,0.05)' }} />
+              <div className="flex gap-2">
+                  <div className="h-8 w-24 rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }} />
+                  <div className="h-8 w-24 rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }} />
+              </div>
+          </div>
+      )}
+      {recommendation && (
+          <div
+              className="rounded-3xl p-8 mb-8 backdrop-blur-sm"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.10)' }}
+          >
+              <p className="text-xs uppercase tracking-widest mb-4" style={{ color: 'rgba(245,158,11,0.7)', letterSpacing: '0.22em' }}>
+                  Today's Recommendation
+              </p>
+              <p className="text-3xl font-normal mb-4" style={{ fontFamily: "'Tenor Sans', serif" }}>
+                  {recommendation.topFragranceName}
+              </p>
+              <p className="text-sm text-white/60 mb-6 leading-relaxed">
+                  {recommendation.reason}
+              </p>
+              {recommendation.otherSuggestions.length > 0 && (
+                  <div>
+                      <p className="text-xs uppercase tracking-widest mb-3" style={{ color: '#6b7280', letterSpacing: '0.18em' }}>
+                          Also works for this occasion
+                      </p>
+                      <div className="flex gap-2">
+                          {recommendation.otherSuggestions.map((name: string) => (
+                              <span
+                                  key={name}
+                                  className="px-4 py-2 rounded-full text-xs"
+                                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)', color: '#9ca3af' }}
+                              >
+                                  {name}
+                              </span>
+                          ))}
+                      </div>
+                  </div>
+              )}
+          </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
