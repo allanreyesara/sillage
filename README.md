@@ -4,7 +4,7 @@
 >
 > Live Demo: https://www.sillage.beauty/
 
-![Sillage Dashboard](https://www.sillage.beauty/)
+![Sillage Landing](hhttps://www.sillage.beauty/Sillage-Landing.png)
 
 ---
 
