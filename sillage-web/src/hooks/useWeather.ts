@@ -35,6 +35,7 @@ export function weatherIcon(code: number, isDay: boolean): string {
   if (code <= 99) return '⛈️'
   return '🌡️'
 }
+
 async function getCityName(lat: number, lon: number): Promise<string | null> {
   try {
     const res = await fetch(
@@ -58,6 +59,7 @@ export function useWeather() {
   const [status, setStatus] = useState<WeatherStatus>('idle')
   const [weather, setWeather] = useState<WeatherData | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [retryCount, setRetryCount] = useState(0)
 
   useEffect(() => {
     setStatus('requesting')
@@ -86,7 +88,7 @@ export function useWeather() {
             city,
           })
           setStatus('success')
-        } catch (e) {
+        } catch {
           setError('Could not fetch weather data')
           setStatus('error')
         }
@@ -101,7 +103,9 @@ export function useWeather() {
       },
       { timeout: 8000 }
     )
-  }, [])
+  }, [retryCount])
 
-  return { weather, status, error }
+  const retry = () => setRetryCount(c => c + 1)
+
+  return { weather, status, error, retry }
 }
