@@ -111,6 +111,16 @@ export default function Auth() {
                     {isLogIn ? 'Sign Up' : 'Sign In'}
                 </button>
             </p>
+            {isLogIn && (
+                <p className="text-gray-600 text-sm mt-2 text-center">
+                    <button 
+                        onClick={() => supabase.auth.resetPasswordForEmail(email)}
+                        className="text-gray-400 hover:text-white transition-colors"
+                    >
+                        Forgot your password?
+                    </button>
+                </p>
+            )}
         </div>
     </div>
 )
