@@ -6,6 +6,7 @@ const navItems = [
     { label: 'Discover', path: '/discover', icon: Search },
     { label: 'Collection', path: '/collection', icon: BookMarked },
     { label: 'Profile', path: '/profile', icon: User },
+    { label: 'Quiniela', path: '/quiniela', icon: BookMarked },
 ]
 
 export default function BottomNav() {

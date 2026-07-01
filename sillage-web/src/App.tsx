@@ -6,6 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Landing from './pages/Landing'
 import Collection from './pages/Collection'
 import Profile from './pages/Profile'
+import Quiniela from './pages/Quiniela'
 
 function App() {
   return (
@@ -24,6 +25,9 @@ function App() {
         </ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute>
           <Profile />
+        </ProtectedRoute>} />
+        <Route path="/quiniela" element={<ProtectedRoute>
+          <Quiniela />
         </ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
