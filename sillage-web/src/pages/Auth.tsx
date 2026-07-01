@@ -70,8 +70,10 @@ export default function Auth() {
       }
     }}/>
         <BlobBackground />
-        <div className="relative z-10 w-full max-w-md p-8">
-            <h1 className="text-5xl font-serif text-white mb-1 tracking-tight">Sillage</h1>
+        <div className="relative z-10 w-full max-w-md p-8" >
+            <a href="/" cursosr-pointer >
+                <h1 className="text-5xl font-serif text-white mb-1 tracking-tight">Sillage</h1>
+            </a>
             <p className="text-gray-500 mb-8 text-sm tracking-widest uppercase">
                 {isLogIn ? 'Welcome back' : 'Create your account'}
             </p>
@@ -91,7 +93,7 @@ export default function Auth() {
                     onChange={(e) => setPassword(e.target.value)}
                     className="bg-white/5 border border-white/10 text-white placeholder-gray-600 rounded-xl px-4 py-3 outline-none focus:border-amber-500/50 transition-all"
                 />
-
+                {loading && <p className="text-gray-400 text-sm">This is a beta version, it can take 30 seconds for the server to wake up if the app was not used by any user in the last 15 minutes.</p>}
                 {error && <p className="text-red-400 text-sm">{error}</p>}
 
                 <button
@@ -109,6 +111,16 @@ export default function Auth() {
                     {isLogIn ? 'Sign Up' : 'Sign In'}
                 </button>
             </p>
+            {isLogIn && (
+                <p className="text-gray-600 text-sm mt-2 text-center">
+                    <button 
+                        onClick={() => supabase.auth.resetPasswordForEmail(email)}
+                        className="text-gray-400 hover:text-white transition-colors"
+                    >
+                        Forgot your password?
+                    </button>
+                </p>
+            )}
         </div>
     </div>
 )
