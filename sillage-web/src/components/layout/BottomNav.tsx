@@ -1,12 +1,13 @@
 import { useNavigate, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Search, BookMarked, User } from 'lucide-react'
+import { LayoutDashboard, Search, BookMarked, User, Trophy } from 'lucide-react'
+
 
 const navItems = [
     { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { label: 'Discover', path: '/discover', icon: Search },
     { label: 'Collection', path: '/collection', icon: BookMarked },
     { label: 'Profile', path: '/profile', icon: User },
-    { label: 'Quiniela', path: '/quiniela', icon: BookMarked },
+    { label: 'Quiniela', path: '/quiniela', icon: Trophy },
 ]
 
 export default function BottomNav() {
