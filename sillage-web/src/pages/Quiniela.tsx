@@ -240,7 +240,23 @@ export default function QuinielaPage() {
         <p className="mt-2 text-right text-[11px] text-emerald-200">{sync}</p>
       </header>
 
+      <div className="mt-3">
+        <iframe
+          id="sofa-cupTree-embed-16-58210-10560975"
+          src="https://widgets.sofascore.com/embed/unique-tournament/16/season/58210/cuptree/10560975?widgetTitle=Knockout%20stage&showCompetitionLogo=true&widgetTheme=light"
+          style={{
+            height: 920,
+            maxWidth: 700,
+            width: "100%",
+            border: "none",
+          }}
+          scrolling="yes"
+          title="Cuadro del Mundial 2026"
+        />
+      </div>
+
       <details className="mt-4 rounded-xl border border-neutral-200 bg-white">
+        
         <summary className="cursor-pointer px-4 py-3 text-[15px] font-bold text-emerald-950">Reglas de puntuación</summary>
         <div className="px-4 pb-4 text-[13px] leading-relaxed text-neutral-600">
           Pronosticás el marcador exacto de los 90 minutos. Si pronosticás empate, elegí también quién avanza.
@@ -254,11 +270,13 @@ export default function QuinielaPage() {
           </div>
         </div>
       </details>
+      
 
       <details className="mt-3 rounded-xl border border-neutral-200 bg-white">
         <summary className="cursor-pointer px-4 py-3 text-[15px] font-bold text-emerald-950">
           Premios y campeón {awardsLocked ? "· cerrado" : ""}
         </summary>
+        
         <div className="divide-y divide-neutral-200 px-4 pb-4">
           {AWARDS.map(a => {
             const mine = awardPreds.find(g => g.user_id === uid && g.award_key === a.key);
