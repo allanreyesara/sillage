@@ -1,17 +1,19 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import type { Session } from "@supabase/supabase-js";
-// AJUSTA esta ruta a donde tengas tu cliente de Supabase en Sillage:
 import { supabase } from '../lib/supabase'
 
 // ---------- Tipos ----------
+type Winner = "A" | "B" | null;
 type Match = {
   id: string; round: string; round_order: number; match_order: number;
   team_a: string; team_b: string; kickoff: string;
   actual_a: number | null; actual_b: number | null;
+  actual_winner: Winner;
 };
 type Prediction = {
   user_id: string; match_id: string;
   pred_a: number; pred_b: number; extra_time: boolean;
+  winner_pick: Winner;
 };
 type Player = { user_id: string; display_name: string };
 type AwardPrediction = { user_id: string; award_key: string; guess: string };
@@ -27,6 +29,7 @@ const AWARDS = [
 
 const LOCK_MS = 60 * 60 * 1000;
 const AWARDS_LOCK = new Date("2026-07-09T19:00:00Z").getTime();
+const WINNER_PTS = 2; // puntos por acertar quien avanza en ET/penales
 
 // ---------- Puntos ----------
 function calcPoints(p: Prediction, m: Match): number | null {
@@ -39,6 +42,7 @@ function calcPoints(p: Prediction, m: Match): number | null {
   else if (po === ao) pts += 3;
   if (ao === "D" && po === "D") pts += 1;
   if (p.extra_time && ao === "D") pts += 2;
+  if (ao === "D" && m.actual_winner && p.winner_pick === m.actual_winner) pts += WINNER_PTS;
   return pts;
 }
 
@@ -111,8 +115,12 @@ export default function QuinielaPage() {
       const next: Prediction = {
         user_id: uid, match_id: matchId,
         pred_a: existing?.pred_a ?? 0, pred_b: existing?.pred_b ?? 0,
-        extra_time: existing?.extra_time ?? false, ...patch,
+        extra_time: existing?.extra_time ?? false,
+        winner_pick: existing?.winner_pick ?? null,
+        ...patch,
       };
+      // si el marcador ya no es empate, el winner_pick sobra
+      if (next.pred_a !== next.pred_b) next.winner_pick = null;
       const rest = prev.filter(p => !(p.user_id === uid && p.match_id === matchId));
       debounce(matchId, async () => {
         setSync("Guardando...");
@@ -137,7 +145,16 @@ export default function QuinielaPage() {
   };
 
   const adminUpdateMatch = (matchId: string, patch: Partial<Match>) => {
-    setMatches(prev => prev.map(m => m.id === matchId ? { ...m, ...patch } : m));
+    setMatches(prev => prev.map(m => {
+      if (m.id !== matchId) return m;
+      const next = { ...m, ...patch };
+      // si el resultado ya no es empate, limpiar actual_winner
+      if (next.actual_a !== null && next.actual_b !== null && next.actual_a !== next.actual_b) {
+        next.actual_winner = null;
+        patch = { ...patch, actual_winner: null };
+      }
+      return next;
+    }));
     debounce("adm-" + matchId, async () => {
       const { error } = await supabase.from("quiniela_matches").update(patch).eq("id", matchId);
       setSync(error ? "Error (¿sos admin?)" : "Guardado");
@@ -206,7 +223,7 @@ export default function QuinielaPage() {
   const awardsLocked = now >= AWARDS_LOCK;
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-6 pb-16">
+    <div className="mx-auto max-w-2xl px-4 py-6 pb-24">
       <header className="rounded-2xl bg-emerald-950 p-5 text-white">
         <p className="text-[11px] font-bold uppercase tracking-widest text-amber-400">Copa Mundial FIFA 2026</p>
         <h1 className="mb-4 mt-1 text-2xl font-extrabold">Quiniela del Mundial</h1>
@@ -226,11 +243,10 @@ export default function QuinielaPage() {
       <details className="mt-4 rounded-xl border border-neutral-200 bg-white">
         <summary className="cursor-pointer px-4 py-3 text-[15px] font-bold text-emerald-950">Reglas de puntuación</summary>
         <div className="px-4 pb-4 text-[13px] leading-relaxed text-neutral-600">
-          Pronosticás el marcador exacto y marcás "ET" si creés que se va a tiempos extra.
+          Pronosticás el marcador exacto de los 90 minutos. Si pronosticás empate, elegí también quién avanza.
           Las predicciones cierran 1 hora antes de cada partido y las de los demás se revelan al cierre.
-          Los premios cierran cuando arrancan los cuartos.
           <div className="mt-2 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-            {[["Marcador exacto","5 pts"],["Resultado correcto","3 pts"],["Bono empate","+1 pt"],["Bono tiempo extra","+2 pts"],["Campeón","10 pts"],["Subcampeón","5 pts"],["Máx. goleador","4 pts"],["Máx. asistente","4 pts"],["Mejor portero","3 pts"]].map(([l, v]) => (
+            {[["Marcador exacto","5 pts"],["Resultado correcto","3 pts"],["Bono empate","+1 pt"],["Bono tiempo extra","+2 pts"],["Quién avanza (ET/penales)",`+${WINNER_PTS} pts`],["Campeón","10 pts"],["Subcampeón","5 pts"],["Máx. goleador","4 pts"],["Máx. asistente","4 pts"],["Mejor portero","3 pts"]].map(([l, v]) => (
               <div key={l} className="flex justify-between rounded-lg bg-emerald-50 px-3 py-1.5">
                 <span>{l}</span><b className="text-emerald-950">{v}</b>
               </div>
@@ -282,6 +298,8 @@ export default function QuinielaPage() {
           {matches.filter(m => m.round === round).map(m => {
             const locked = now >= new Date(m.kickoff).getTime() - LOCK_MS;
             const mine = preds.find(p => p.user_id === uid && p.match_id === m.id);
+            const myDraw = !!mine && mine.pred_a === mine.pred_b;
+            const actualDraw = m.actual_a !== null && m.actual_b !== null && m.actual_a === m.actual_b;
             return (
               <div key={m.id} className="mb-3 rounded-xl border border-neutral-200 bg-white p-4">
                 <div className="mb-1 flex items-center gap-2">
@@ -299,22 +317,33 @@ export default function QuinielaPage() {
                 </div>
 
                 {/* Mi predicción */}
-                <div className="flex items-center gap-2.5 border-t border-neutral-100 py-2">
-                  <span className="w-14 shrink-0 truncate text-xs font-bold text-emerald-800">Vos</span>
-                  <ScoreInput value={mine?.pred_a ?? null} disabled={locked}
-                    onChange={v => upsertPrediction(m.id, { pred_a: v ?? 0 })} />
-                  <span className="text-neutral-400">-</span>
-                  <ScoreInput value={mine?.pred_b ?? null} disabled={locked}
-                    onChange={v => upsertPrediction(m.id, { pred_b: v ?? 0 })} />
-                  <label className="ml-1 flex items-center gap-1 text-[11px] text-neutral-500">
-                    <input type="checkbox" checked={mine?.extra_time ?? false} disabled={locked}
-                      onChange={e => upsertPrediction(m.id, { extra_time: e.target.checked })} />
-                    ET
-                  </label>
-                  <PtsTag pts={mine ? calcPoints(mine, m) : null} />
+                <div className="border-t border-neutral-100 py-2">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-14 shrink-0 truncate text-xs font-bold text-emerald-800">Vos</span>
+                    <ScoreInput value={mine?.pred_a ?? null} disabled={locked}
+                      onChange={v => upsertPrediction(m.id, { pred_a: v ?? 0 })} />
+                    <span className="text-neutral-400">-</span>
+                    <ScoreInput value={mine?.pred_b ?? null} disabled={locked}
+                      onChange={v => upsertPrediction(m.id, { pred_b: v ?? 0 })} />
+                    <label className="ml-1 flex items-center gap-1 text-[11px] text-neutral-500">
+                      <input type="checkbox" checked={mine?.extra_time ?? false} disabled={locked}
+                        onChange={e => upsertPrediction(m.id, { extra_time: e.target.checked })} />
+                      ET
+                    </label>
+                    <PtsTag pts={mine ? calcPoints(mine, m) : null} />
+                  </div>
+                  {myDraw && (
+                    <WinnerPicker
+                      label="¿Quién avanza?"
+                      teamA={m.team_a} teamB={m.team_b}
+                      value={mine?.winner_pick ?? null}
+                      disabled={locked}
+                      onChange={w => upsertPrediction(m.id, { winner_pick: w })}
+                    />
+                  )}
                 </div>
 
-                {/* Predicciones de otros: RLS las oculta hasta el cierre */}
+                {/* Predicciones de otros */}
                 {players.filter(p => p.user_id !== uid).map(p => {
                   const pr = preds.find(x => x.user_id === p.user_id && x.match_id === m.id);
                   return (
@@ -324,6 +353,11 @@ export default function QuinielaPage() {
                         <>
                           <span className="text-sm font-bold">{pr.pred_a} - {pr.pred_b}</span>
                           {pr.extra_time && <span className="text-[10px] font-bold text-neutral-400">ET</span>}
+                          {pr.winner_pick && (
+                            <span className="text-[10px] text-neutral-500">
+                              avanza {pr.winner_pick === "A" ? m.team_a : m.team_b}
+                            </span>
+                          )}
                           <PtsTag pts={calcPoints(pr, m)} />
                         </>
                       ) : (
@@ -336,14 +370,31 @@ export default function QuinielaPage() {
                 })}
 
                 {/* Resultado real: solo admin */}
-                <div className="mt-1 flex items-center gap-2.5 border-t-2 border-orange-400 pt-2.5">
-                  <span className="w-14 shrink-0 text-xs font-bold text-orange-600">Real</span>
-                  <ScoreInput value={m.actual_a} accent disabled={!isAdmin}
-                    onChange={v => adminUpdateMatch(m.id, { actual_a: v })} />
-                  <span className="text-neutral-400">-</span>
-                  <ScoreInput value={m.actual_b} accent disabled={!isAdmin}
-                    onChange={v => adminUpdateMatch(m.id, { actual_b: v })} />
-                  {!isAdmin && <span className="text-[10px] text-neutral-400">solo admin</span>}
+                <div className="mt-1 border-t-2 border-orange-400 pt-2.5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-14 shrink-0 text-xs font-bold text-orange-600">Real</span>
+                    <ScoreInput value={m.actual_a} accent disabled={!isAdmin}
+                      onChange={v => adminUpdateMatch(m.id, { actual_a: v })} />
+                    <span className="text-neutral-400">-</span>
+                    <ScoreInput value={m.actual_b} accent disabled={!isAdmin}
+                      onChange={v => adminUpdateMatch(m.id, { actual_b: v })} />
+                    {!isAdmin && <span className="text-[10px] text-neutral-400">solo admin</span>}
+                  </div>
+                  {actualDraw && (
+                    isAdmin ? (
+                      <WinnerPicker
+                        label="¿Quién avanzó?"
+                        teamA={m.team_a} teamB={m.team_b}
+                        value={m.actual_winner}
+                        accent
+                        onChange={w => adminUpdateMatch(m.id, { actual_winner: w })}
+                      />
+                    ) : m.actual_winner && (
+                      <p className="mt-1.5 pl-[66px] text-[11px] font-bold text-orange-600">
+                        Avanzó {m.actual_winner === "A" ? m.team_a : m.team_b}
+                      </p>
+                    )
+                  )}
                 </div>
               </div>
             );
@@ -361,6 +412,28 @@ function Center({ children }: { children: React.ReactNode }) {
 
 function PtsTag({ pts }: { pts: number | null }) {
   return <span className="ml-auto min-w-[26px] text-right text-xs font-extrabold text-emerald-700">{pts !== null ? `+${pts}` : ""}</span>;
+}
+
+function WinnerPicker({ label, teamA, teamB, value, onChange, disabled, accent }: {
+  label: string; teamA: string; teamB: string;
+  value: Winner; onChange: (w: Winner) => void;
+  disabled?: boolean; accent?: boolean;
+}) {
+  const base = "rounded-lg border px-2.5 py-1 text-[11px] font-bold transition-colors disabled:opacity-50";
+  const off = accent ? "border-orange-300 text-orange-600" : "border-neutral-300 text-neutral-500";
+  const on = accent ? "border-orange-500 bg-orange-500 text-white" : "border-emerald-700 bg-emerald-700 text-white";
+  return (
+    <div className="mt-1.5 flex items-center gap-1.5 pl-[66px]">
+      <span className={`text-[11px] ${accent ? "text-orange-600" : "text-neutral-500"}`}>{label}</span>
+      {(["A", "B"] as const).map(side => (
+        <button key={side} type="button" disabled={disabled}
+          className={`${base} ${value === side ? on : off} max-w-[130px] truncate`}
+          onClick={() => onChange(value === side ? null : side)}>
+          {side === "A" ? teamA : teamB}
+        </button>
+      ))}
+    </div>
+  );
 }
 
 function TeamName({ value, editable, onChange }: { value: string; editable: boolean; onChange: (v: string) => void }) {
