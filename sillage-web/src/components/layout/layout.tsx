@@ -22,6 +22,7 @@ export default function Layout({ children }: Props) {
         { label: 'Discover', path: '/discover' },
         { label: 'Collection', path: '/collection' },
         { label: 'Profile', path: '/profile' },
+        { label: 'Quiniela', path: '/quiniela' },
     ]
 
     return (
