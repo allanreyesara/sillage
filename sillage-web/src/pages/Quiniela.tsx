@@ -255,6 +255,8 @@ export default function QuinielaPage() {
         />
       </div>
 
+      
+
       <details className="mt-4 rounded-xl border border-neutral-200 bg-white">
         
         <summary className="cursor-pointer px-4 py-3 text-[15px] font-bold text-emerald-950">Reglas de puntuación</summary>
